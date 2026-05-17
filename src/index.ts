@@ -5,7 +5,7 @@ import * as css from './style.module.css';
 import * as notesCss from './notes.module.css';
 
 import { NetworkData, Note } from './types/types';
-import { playNote, scaleMajor, scalePentatonic, arrangeNotes, totalDuration } from './tones';
+import { playNote, scaleMajor, scalePentatonic, arrangeNotes, totalDuration, keys, networkTypeToNote } from './tones';
 
 
 async function loadData(data: any): Promise<NetworkData[]> {
@@ -48,6 +48,36 @@ function playNotes(notes: Note[]) {
     });
 }
 
+function createLabels() {
+    labelContainer.innerHTML = ''; // Clear previous labels
+    const noteNames: string[] = [];
+    const keysNames: string[] = [];
+    keys.forEach((key, i) => {
+        const noteName = networkTypeToNote(key, scale);
+        console.log(`Mapping key "${key}" to note "${noteName}"`);
+        console.log(`Current noteNames: ${noteNames.join(', ')}`);
+        console.log(`Current keysNames: ${keysNames.join(', ')}`);
+        if (!noteNames.includes(noteName)) {
+            noteNames.push(noteName);
+            keysNames.push(key);
+        } else {
+            keysNames[i % scale.length] = keysNames[i % scale.length].concat(`, ${key}`);
+        }
+    });
+    for (let i = 0; i < scale.length; i++) {
+        const label = document.createElement('div');
+        const note = { note: scale[i], startTime: 0, duration: 0, attackTime: 0, releaseTime: 0 };
+        const { left, top, width } = noteToPosition(note);
+        const nodeName = noteNames[i] || scale[i];
+        const keyName = keysNames[i] || 'unknown';
+        label.innerHTML = `<span class="${css.labelText}">${nodeName} (${keyName})</span>`;
+        label.style.left = `${left}px`;
+        // label.style.width = `${width}px`;
+        label.style.top = `${top}px`;
+        label.classList.add(css.label);
+        labelContainer.appendChild(label);
+    }
+    }
 const button = document.getElementById('play-button') as HTMLButtonElement;
 const scaleElement = document.getElementById('scale-selector') as HTMLSelectElement;
 const input = document.getElementById('file-input') as HTMLInputElement;
@@ -55,92 +85,55 @@ const labelContainer = document.getElementById('labels-container') as HTMLDivEle
 const noteContainer = document.getElementById('notes-container') as HTMLDivElement;
 
 let scale = scaleMajor; // Default scale
-if (scaleElement) {
-    scaleElement.value = 'major'; // Set default value
-    scaleElement.addEventListener('change', () => {
-        console.log(`Scale changed to: ${scaleElement.value}`);
-        if (scaleElement.value === 'major') {
-            scale = scaleMajor;
-        } else if (scaleElement.value === 'pentatonic') {
-            scale = scalePentatonic;
-        }
-        noteContainer.innerHTML = ''; // Clear previous notes
-        if (labelContainer) {
-            labelContainer.innerHTML = ''; // Clear previous labels
-            for (let i = 0; i < scale.length; i++) {
-                const label = document.createElement('div');
-                const note = { note: scale[i], startTime: 0, duration: 0, attackTime: 0, releaseTime: 0 };
-                const { left, top, width } = noteToPosition(note);
-                label.innerHTML = `<span style=" display: inline-block; vertical-align: middle; line-height: normal;">${scale[i]}</span>`;
-                label.style.left = `${left}px`;
-                // label.style.width = `${width}px`;
-                label.style.top = `${top}px`;
-                label.classList.add(css.label);
-                labelContainer.appendChild(label);
-            }
-        } else {
-            console.error("Label container element not found!");
-        }
-    });
-} else {
-    console.error("Scale select element not found!");
-}
-
-if (labelContainer) {
-    labelContainer.innerHTML = ''; // Clear previous labels
-    for (let i = 0; i < scale.length; i++) {
-        const label = document.createElement('div');
-        const note = { note: scale[i], startTime: 0, duration: 0, attackTime: 0, releaseTime: 0 };
-        const { left, top, width } = noteToPosition(note);
-        label.innerHTML = `<span style=" display: inline-block; vertical-align: middle; line-height: normal;">${scale[i]}</span>`;
-        label.style.left = `${left}px`;
-        // label.style.width = `${width}px`;
-        label.style.top = `${top}px`;
-        label.classList.add(css.label);
-        labelContainer.appendChild(label);
+scaleElement.value = 'major'; // Set default value
+scaleElement.addEventListener('change', () => {
+    console.log(`Scale changed to: ${scaleElement.value}`);
+    if (scaleElement.value === 'major') {
+        scale = scaleMajor;
+    } else if (scaleElement.value === 'pentatonic') {
+        scale = scalePentatonic;
     }
-} else {
-    console.error("Label container element not found!");
-}
+    noteContainer.innerHTML = ''; // Clear previous notes
+        createLabels(); // Recreate labels for the new scale
+});
+
+createLabels();
 
 
-if (button) {
-    button.addEventListener('click', () => {
-        if (Tone.getContext().state !== 'running') {
-            Tone.getContext().resume();
-        }
 
-        let jsonData: any = {}; // Use the imported JSON data
-        if (input && input.files && input.files.length > 0) {
-            const file = input.files[0];
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                try {
-                    jsonData = JSON.parse(event.target?.result as string);
-                    loadData(jsonData.log.entries).then(entries => {
-                    console.log("Processed notes:", entries);
-                    if (noteContainer && labelContainer) {
-                        const notes = arrangeNotes(entries, scale);
-                        const totalWidth = totalDuration(notes) + 10;
-                        noteContainer.style.width = `${totalWidth}px`;
-                        Array.from(labelContainer.children).forEach(element => {
-                            (element as HTMLElement).style.width = `${totalWidth}px`;
-                        });
-                        noteContainer.innerHTML = ''; // Clear previous notes
-                        notes.forEach((note) => addNote(note, noteContainer));
-                        playNotes(notes);
-                    }
-                    }).catch(error => {
-                       console.error("Error loading data:", error);
+button.addEventListener('click', () => {
+    if (Tone.getContext().state !== 'running') {
+        Tone.getContext().resume();
+    }
+
+    let jsonData: any = {};
+    if (input && input.files && input.files.length > 0) {
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+        try {
+            jsonData = JSON.parse(event.target?.result as string);
+            loadData(jsonData.log.entries).then(entries => {
+            console.log("Processed notes:", entries);
+            if (noteContainer && labelContainer) {
+                const notes = arrangeNotes(entries, scale);
+                const totalWidth = totalDuration(notes) + 10;
+                noteContainer.style.width = `${totalWidth}px`;
+                Array.from(labelContainer.children).forEach(element => {
+                    (element as HTMLElement).style.width = `${totalWidth}px`;
                 });
-                } catch (error) {
-                    console.error("Error parsing JSON file:", error);
-                    return;
-                }
-            };
-            reader.readAsText(file);
+                noteContainer.innerHTML = ''; // Clear previous notes
+                notes.forEach((note) => addNote(note, noteContainer));
+                playNotes(notes);
+            }
+            }).catch(error => {
+                console.error("Error loading data:", error);
+        });
+        } catch (error) {
+            console.error("Error parsing JSON file:", error);
+            return;
         }
-    });
-} else {
-    console.error("Play button not found!");
-}
+    };
+    reader.readAsText(file);
+    }
+});

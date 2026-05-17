@@ -3,7 +3,9 @@ import * as Tone from 'tone';
 import { Note, NetworkData } from './types/types';
 
 export const scaleMajor = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5'];
-export const scalePentatonic = ['C4', 'D4', 'E4', 'G4', 'A4', 'C5'];
+export const scalePentatonic = ['C4', 'D4', 'E4', 'G4', 'A4', 'C5', 'D5', 'E5', 'G5', 'A5'];
+
+export const keys = ['document', 'stylesheet', 'image', 'media', 'font', 'script', 'texttrack', 'xhr', 'fetch', 'eventsource', 'websocket', 'manifest', 'other'];
 
 export const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
@@ -17,8 +19,7 @@ export const playNote = (note: Note) => {
     synth.triggerAttackRelease(note.note, note.duration / 1000, Tone.now() + note.startTime / 1000);
 };
 
-const networkTypeToNote = (key: string, scale: string[]): string => {
-    const keys = ['document', 'stylesheet', 'image', 'media', 'font', 'script', 'texttrack', 'xhr', 'fetch', 'eventsource', 'websocket', 'manifest', 'other'];
+export const networkTypeToNote = (key: string, scale: string[]): string => {
     const index = keys.indexOf(key);
     return index !== -1 ? scale[index % scale.length] : scale[Math.floor(Math.random() * scale.length)];
 };

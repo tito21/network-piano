@@ -38,6 +38,11 @@ body {
     text-align: left;
 }
 
+.labelText {
+    top: calc(var(--note-height) / 2 - 0.5em);
+    left: 2px;
+    position: relative;
+}
 
 img {
     border: 10px solid;
