@@ -1,0 +1,50 @@
+name: Publish Page
+# This workflow builds the static files and deploys them to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # Build job
+  build:
+    # Specify runner +  build & upload the static files as an artifact
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '25.x'
+
+      - name: Build static files
+        id: build
+        run: |
+          # Install dependencies and build the static files
+          npm ci
+          npm run build
+
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist/
+
+  # Deployment job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pages: write       # Added for GitHub Pages deployment
+      id-token: write    # Necessary for actions/deploy-pages
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
