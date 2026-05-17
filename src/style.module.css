@@ -1,0 +1,45 @@
+
+:root {
+    --note-height: 30px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 20px;
+}
+
+:global(#piano-roll) {
+    margin-top: 20px;
+}
+
+:global(.piano-roll-container) {
+    position: relative;
+    top: 0px;
+    left: 0px;
+    height: 0;
+}
+
+.note {
+    border-color: rgb(59, 59, 59);
+    border-radius: 2px;
+    border-width: 2px;
+    border-style: solid;
+    position: absolute;
+    height: var(--note-height);
+    float: left;
+}
+
+.label {
+    position: absolute;
+    height: calc(var(--note-height) + 2px);
+    color: rgb(0, 0, 0);
+    border: black solid 1px;
+    text-align: left;
+}
+
+
+img {
+    border: 10px solid;
+}
+

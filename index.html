@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Webpack App</title>
+    </head>
+    <body>
+        <h1>Network Piano</h1>
+        <h2>Listen to a representation of the loading process</h2>
+        <img src="assets/PlayerPianoRoll.jpg" alt="Player Piano Roll" height="300" />
+        <br />
+        <select id="scale-selector">
+            <option value="major">Major</option>
+            <option value="pentatonic">Pentatonic</option>
+        </select>
+        <input type="file" id="file-input" accept=".har,.json" />
+        <button id="play-button">Play</button>
+
+        <div id="piano-roll">
+            <div id="labels-container" class="piano-roll-container"> </div>
+            <div id="notes-container" class="piano-roll-container"> </div>
+        </div>
+
+    </body>
+
+    <script>
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker
+                    .register("service-worker.js")
+                    .then((registration) => {
+                        console.log("Service Worker registered: ", registration);
+                    })
+                    .catch((registrationError) => {
+                        console.error("Service Worker registration failed: ", registrationError);
+                    });
+            });
+        }
+    </script>
+</html>

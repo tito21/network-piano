@@ -1,0 +1,32 @@
+{
+  "version": "1.0.0",
+  "description": "Network Piano: A web application to audialize Chrome DevTools network activity as musical notes.",
+  "name": "network-piano",
+  "author": {"email": "asdibiase@uc.cl", "name": "Alberto Di Biase"},
+  "license": "MIT",
+  "scripts": {
+    "build": "webpack --mode=production --config-node-env=production",
+    "build:dev": "webpack --mode=development",
+    "serve": "webpack serve",
+    "watch": "webpack --watch"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.5.0",
+    "css-loader": "^7.1.4",
+    "html-loader": "^5.1.0",
+    "html-webpack-plugin": "^5.6.7",
+    "mini-css-extract-plugin": "^2.10.2",
+    "postcss": "^8.5.14",
+    "postcss-loader": "^8.2.1",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.7",
+    "typescript": "^6.0.3",
+    "webpack": "^5.106.2",
+    "webpack-cli": "^7.0.2",
+    "webpack-dev-server": "^5.2.4",
+    "workbox-webpack-plugin": "^7.4.1"
+  },
+  "dependencies": {
+    "tone": "^15.1.22"
+  }
+}
